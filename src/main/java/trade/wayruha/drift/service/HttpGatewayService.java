@@ -3,6 +3,7 @@ package trade.wayruha.drift.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import trade.wayruha.drift.DriftConfig;
 import trade.wayruha.drift.dto.request.CancelOrderByUserIdRequest;
 import trade.wayruha.drift.dto.request.PlaceOrderRequest;
@@ -10,94 +11,102 @@ import trade.wayruha.drift.dto.response.MarketItemInfo;
 import trade.wayruha.drift.dto.response.MarketPositionItem;
 import trade.wayruha.drift.dto.response.BaseMarketResponse;
 import trade.wayruha.drift.dto.response.OrdersInfoResponse;
-import trade.wayruha.drift.service.endpoint.ExchangeEndpoints;
+import trade.wayruha.drift.dto.response.TxConfirmationResponse;
 import trade.wayruha.drift.service.endpoint.MetadataEndpoints;
+import trade.wayruha.drift.service.endpoint.TradeEndpoints;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class HttpGatewayService extends ServiceBase {
-    private static final TypeReference<BaseMarketResponse<MarketPositionItem>> MARKET_POSITIONS_RESPONSE_TYPE = new TypeReference<>() {};
-    private static final TypeReference<BaseMarketResponse<MarketItemInfo>> MARKET_INFO_RESPONSE_TYPE = new TypeReference<>() {};
+  private final String host;
+  private final Integer port;
+  private final String privateKey;
 
-    private final String host;
-    private final Integer port;
-    private final  String privateKey;
-    private boolean isRunning;
+  private final MetadataEndpoints metadataApi;
+  private final TradeEndpoints exchangeApi;
 
-    private final MetadataEndpoints metadataApi;
-    private final ExchangeEndpoints exchangeApi;
+  public HttpGatewayService(String privateKey, DriftConfig config) {
+    super(config);
+    this.exchangeApi = createService(TradeEndpoints.class);
+    this.metadataApi = createService(MetadataEndpoints.class);
 
-    public HttpGatewayService(String privateKey, DriftConfig config) {
-        super(config);
-        this.exchangeApi = createService(ExchangeEndpoints.class);
-        this.metadataApi = createService(MetadataEndpoints.class);
+    this.host = config.getGatewayHost();
+    this.port = Integer.parseInt(config.getGatewayPort());
+    this.privateKey = privateKey;
+  }
 
-        this.host = config.getGatewayHost();
-        this.port = Integer.parseInt(config.getGatewayPort());
-        this.privateKey = privateKey;
-        isRunning = false;
-    }
+  //todo add stopGateway();
 
+  public void startGateway() throws IOException, InterruptedException {
+    if (gatewayStarted) return;
 
-    @SneakyThrows
-    public void startGateway() {
-        if(isRunning) return;
+    final ProcessBuilder processBuilder = new ProcessBuilder(
+        client.getConfig().getGatewayPath() + "/target/release/drift-gateway.exe", //todo we can force user to provide his own path to executable
+        // and then we don't need to a) include .exe file in git; b) force user to use windows system (.exe)
+        "https://api.mainnet-beta.solana.com", // todo magic constant
+        "--port", port.toString(),
+        "--host", host
+    );
 
-        final ProcessBuilder processBuilder = new ProcessBuilder(
-                client.getConfig().getGatewayPath() + "/target/release/drift-gateway.exe",
-                "https://api.mainnet-beta.solana.com",
-                "--port", port.toString(),
-                "--host", host
-        );
-
-        final Map<String, String> environment = processBuilder.environment();
-        environment.put("DRIFT_GATEWAY_KEY", privateKey);
+    final Map<String, String> environment = processBuilder.environment();
+    environment.put("DRIFT_GATEWAY_KEY", privateKey); //todo magic constant: must be declared as (at least) 'private static final String'
 
 
-        Process process = processBuilder.start();
+    Process process = processBuilder.start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (process.isAlive()) {
-                process.destroy();
-            }
-        }));
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      if (process.isAlive()) {
+        process.destroy();
+        log.info("Process destroyed on JVM shutdown."); //todo don't use sysout
+      }
+    }));
 
-        TimeUnit.SECONDS.sleep(2);
-        isRunning = true;
-    }
+    TimeUnit.SECONDS.sleep(2);
+  }
 
-    public BaseMarketResponse<MarketItemInfo> getMarketsInfo() {
+  /*  public BaseMarketResponse<MarketItemInfo> getMarketsInfo() {
         if (!isRunning) throw new RuntimeException("Service has to be started first");
 
         final JsonNode node = client.executeSync(metadataApi.getMarkets());
         return getObjectMapper().convertValue(node, MARKET_INFO_RESPONSE_TYPE);
-    }
+    }*/
+  
+  public String getBalance() {
+    final JsonNode jsonNode = client.executeSync(metadataApi.getBalance());
+    return jsonNode.get("balance").asText();
 
-    public String getBalance(){
-        if(!isRunning) throw new RuntimeException("Service has to be started first");
-        final JsonNode jsonNode = client.executeSync(metadataApi.getBalance());
-        return jsonNode.get("balance").asText();
+  }
 
-    }
+  public TxConfirmationResponse placeOrder(PlaceOrderRequest placeOrderRequest) {
+    final TxConfirmationResponse response = client.executeSync(exchangeApi.postOrder(placeOrderRequest));
+    return response;
+  }
 
-    public String placeOrder(PlaceOrderRequest placeOrderRequest){
-        if(!isRunning) throw new RuntimeException("Service has to be started first");
+  public TxConfirmationResponse cancelAllOrders() {
+    final TxConfirmationResponse response = client.executeSync(exchangeApi.deleteOrders());
+    return response;
+  }
 
-        final JsonNode node = client.executeSync(exchangeApi.postOrder(placeOrderRequest));
-        return node.get("tx").asText();
+  public MarketPositionsResponse getMarketPositions() {
+    final JsonNode node = client.executeSync(metadataApi.getAllPositions());
+    final MarketPositionsResponse response = getObjectMapper().convertValue(node, MarketPositionsResponse.class);
 
-    }
+    return response;
+  }
 
-    public String cancelAllOrders(){
-        if(!isRunning) throw new RuntimeException("Service has to be started first");
+  public OrdersInfoResponse getAllOrders() {
 
-        final JsonNode node = client.executeSync(exchangeApi.deleteOrders());
-        return node.get("tx").asText();
-    }
+    final JsonNode node = client.executeSync(metadataApi.getAllOrders());
+    final OrdersInfoResponse response = getObjectMapper().convertValue(node, OrdersInfoResponse.class);
 
-    public String cancelOrdersByUserIds(List<Integer> userIdsList){
+    return response;
+  }
+
+  /*
+  * public String cancelOrdersByUserIds(List<Integer> userIdsList){
         if(!isRunning) throw new RuntimeException("Service has to be started first");
         final CancelOrderByUserIdRequest cancelRequest = new CancelOrderByUserIdRequest(userIdsList);
         final JsonNode node = client.executeSync(exchangeApi.deleteOrdersByUserIds(cancelRequest));
@@ -111,11 +120,5 @@ public class HttpGatewayService extends ServiceBase {
         final JsonNode node = client.executeSync(metadataApi.getAllPositions());
         return getObjectMapper().convertValue(node, MARKET_POSITIONS_RESPONSE_TYPE);
     }
-
-    public OrdersInfoResponse getAllOrders(){
-        if(!isRunning) throw new RuntimeException("Service has to be started first");
-
-        final JsonNode node = client.executeSync(metadataApi.getAllOrders());
-        return getObjectMapper().convertValue(node, OrdersInfoResponse.class);
-    }
+  * */
 }
