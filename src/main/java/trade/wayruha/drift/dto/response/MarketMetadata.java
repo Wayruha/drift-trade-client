@@ -26,7 +26,7 @@ public class MarketMetadata {
 
   public MarketType getMarketType() {
     if (marketType == null || marketType.size() == 0) return null;
-    return marketType.containsKey(MarketType.perp.name()) ? MarketType.perp : MarketType.spot;
+    return marketType.containsKey(MarketType.PERP.name()) ? MarketType.PERP : MarketType.SPOT;
   }
 
   public String getBaseAsset() {

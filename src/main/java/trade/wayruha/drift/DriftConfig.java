@@ -9,8 +9,11 @@ import static trade.wayruha.drift.config.Constant.HTTP_CLIENT_TIMEOUT_MS;
 
 @Data
 public class DriftConfig {
-  private String host = "https://api.hyperliquid.xyz/"; // replace with the actual host //todo
+  private String gatewayPort = "8090";
+  private String gatewayHost = "127.0.0.2";
+  private String host = "http://" + gatewayHost + ":" + gatewayPort;
   private String webSocketHost = "wss://dlob.drift.trade/ws";
+  private String gatewayPath = "E:/Work/gateway-0.1.15";
 
   /**
    * Host connection timeout.
