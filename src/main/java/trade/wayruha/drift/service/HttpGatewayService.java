@@ -1,19 +1,26 @@
 package trade.wayruha.drift.service;
 
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.SneakyThrows;
 import trade.wayruha.drift.DriftConfig;
+import trade.wayruha.drift.dto.request.CancelOrderByUserIdRequest;
 import trade.wayruha.drift.dto.request.PlaceOrderRequest;
-import trade.wayruha.drift.dto.response.MarketPositionsResponse;
+import trade.wayruha.drift.dto.response.MarketItemInfo;
+import trade.wayruha.drift.dto.response.MarketPositionItem;
+import trade.wayruha.drift.dto.response.BaseMarketResponse;
 import trade.wayruha.drift.dto.response.OrdersInfoResponse;
 import trade.wayruha.drift.service.endpoint.ExchangeEndpoints;
 import trade.wayruha.drift.service.endpoint.MetadataEndpoints;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class HttpGatewayService extends ServiceBase {
+    private static final TypeReference<BaseMarketResponse<MarketPositionItem>> MARKET_POSITIONS_RESPONSE_TYPE = new TypeReference<>() {};
+    private static final TypeReference<BaseMarketResponse<MarketItemInfo>> MARKET_INFO_RESPONSE_TYPE = new TypeReference<>() {};
+
     private final String host;
     private final Integer port;
     private final  String privateKey;
@@ -22,13 +29,13 @@ public class HttpGatewayService extends ServiceBase {
     private final MetadataEndpoints metadataApi;
     private final ExchangeEndpoints exchangeApi;
 
-    public HttpGatewayService(String host, Integer port, String privateKey, DriftConfig config) {
+    public HttpGatewayService(String privateKey, DriftConfig config) {
         super(config);
         this.exchangeApi = createService(ExchangeEndpoints.class);
         this.metadataApi = createService(MetadataEndpoints.class);
 
-        this.host = host;
-        this.port = port;
+        this.host = config.getGatewayHost();
+        this.port = Integer.parseInt(config.getGatewayPort());
         this.privateKey = privateKey;
         isRunning = false;
     }
@@ -54,12 +61,18 @@ public class HttpGatewayService extends ServiceBase {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (process.isAlive()) {
                 process.destroy();
-                System.out.println("Process destroyed on JVM shutdown.");
             }
         }));
 
         TimeUnit.SECONDS.sleep(2);
         isRunning = true;
+    }
+
+    public BaseMarketResponse<MarketItemInfo> getMarketsInfo() {
+        if (!isRunning) throw new RuntimeException("Service has to be started first");
+
+        final JsonNode node = client.executeSync(metadataApi.getMarkets());
+        return getObjectMapper().convertValue(node, MARKET_INFO_RESPONSE_TYPE);
     }
 
     public String getBalance(){
@@ -73,9 +86,7 @@ public class HttpGatewayService extends ServiceBase {
         if(!isRunning) throw new RuntimeException("Service has to be started first");
 
         final JsonNode node = client.executeSync(exchangeApi.postOrder(placeOrderRequest));
-        final String response = node.get("tx").asText();
-
-        return response;
+        return node.get("tx").asText();
 
     }
 
@@ -83,26 +94,28 @@ public class HttpGatewayService extends ServiceBase {
         if(!isRunning) throw new RuntimeException("Service has to be started first");
 
         final JsonNode node = client.executeSync(exchangeApi.deleteOrders());
-        final String response = node.get("tx").asText();
-
-        return response;
+        return node.get("tx").asText();
     }
 
-    public MarketPositionsResponse getMarketPositions(){
+    public String cancelOrdersByUserIds(List<Integer> userIdsList){
         if(!isRunning) throw new RuntimeException("Service has to be started first");
+        final CancelOrderByUserIdRequest cancelRequest = new CancelOrderByUserIdRequest(userIdsList);
+        final JsonNode node = client.executeSync(exchangeApi.deleteOrdersByUserIds(cancelRequest));
+        return node.get("tx").asText();
+    }
+
+
+    public BaseMarketResponse<MarketPositionItem> getAllMarketPositions() {
+        if (!isRunning) throw new RuntimeException("Service has to be started first");
 
         final JsonNode node = client.executeSync(metadataApi.getAllPositions());
-        final MarketPositionsResponse response = getObjectMapper().convertValue(node, MarketPositionsResponse.class);
-
-        return response;
+        return getObjectMapper().convertValue(node, MARKET_POSITIONS_RESPONSE_TYPE);
     }
 
     public OrdersInfoResponse getAllOrders(){
         if(!isRunning) throw new RuntimeException("Service has to be started first");
 
         final JsonNode node = client.executeSync(metadataApi.getAllOrders());
-        final OrdersInfoResponse response = getObjectMapper().convertValue(node, OrdersInfoResponse.class);
-
-        return response;
+        return getObjectMapper().convertValue(node, OrdersInfoResponse.class);
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.HTTP;
 import retrofit2.http.POST;
 
 public interface ExchangeEndpoints {
@@ -12,4 +13,7 @@ public interface ExchangeEndpoints {
 
     @DELETE("v2/orders")
     Call<JsonNode> deleteOrders();
+
+    @HTTP(method = "DELETE", path = "v2/orders", hasBody = true)
+    Call<JsonNode> deleteOrdersByUserIds(@Body Object request);
 }

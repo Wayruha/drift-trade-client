@@ -10,9 +10,9 @@ import java.util.List;
 @Data
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MarketPositionsResponse {
+public class BaseMarketResponse<T> {
     @JsonProperty("spot")
-    private List<MarketPositionItem> spotPositionsList;
+    private List<T> spotPositionsList;
     @JsonProperty("perp")
-    private List<MarketPositionItem> perpPositionsList;
+    private List<T> perpPositionsList;
 }
