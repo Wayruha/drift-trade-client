@@ -2,20 +2,17 @@ package trade.wayruha.drift.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 
 @Data
-@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MarketItemInfo {
-
-    private Integer marketIndex;
-    private String symbol;
-    private BigDecimal priceStep; //smallest order price increment for the market
-    private BigDecimal amountStep; //smallest order amount increment for the market
-    private BigDecimal minOrderSize;
-    private BigDecimal initialMarginRatio; //collateral required to open position
-    private BigDecimal maintenanceMarginRatio; //collateral required to maintain position
+  private Integer marketIndex;
+  private String symbol;
+  private BigDecimal priceStep; //smallest order price increment for the market
+  private BigDecimal amountStep; //smallest order amount increment for the market
+  private BigDecimal minOrderSize;
+  private BigDecimal initialMarginRatio; //collateral required to open position
+  private BigDecimal maintenanceMarginRatio; //collateral required to maintain position
 }

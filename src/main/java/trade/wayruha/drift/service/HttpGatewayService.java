@@ -1,37 +1,19 @@
 package trade.wayruha.drift.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import trade.wayruha.drift.DriftConfig;
-import trade.wayruha.drift.dto.request.CancelOrderByUserIdRequest;
-import trade.wayruha.drift.dto.request.PlaceOrderRequest;
-import trade.wayruha.drift.dto.response.MarketItemInfo;
-import trade.wayruha.drift.dto.response.MarketPositionItem;
-import trade.wayruha.drift.dto.response.BaseMarketResponse;
-import trade.wayruha.drift.dto.response.OrdersInfoResponse;
-import trade.wayruha.drift.dto.response.TxConfirmationResponse;
-import trade.wayruha.drift.service.endpoint.MetadataEndpoints;
-import trade.wayruha.drift.service.endpoint.TradeEndpoints;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class HttpGatewayService extends ServiceBase {
+public class HttpGatewayService {
   private final String host;
   private final Integer port;
   private final String privateKey;
 
-  private final MetadataEndpoints metadataApi;
-  private final TradeEndpoints exchangeApi;
-
   public HttpGatewayService(String privateKey, DriftConfig config) {
-    super(config);
-    this.exchangeApi = createService(TradeEndpoints.class);
-    this.metadataApi = createService(MetadataEndpoints.class);
 
     this.host = config.getGatewayHost();
     this.port = Integer.parseInt(config.getGatewayPort());
@@ -41,8 +23,6 @@ public class HttpGatewayService extends ServiceBase {
   //todo add stopGateway();
 
   public void startGateway() throws IOException, InterruptedException {
-    if (gatewayStarted) return;
-
     final ProcessBuilder processBuilder = new ProcessBuilder(
         client.getConfig().getGatewayPath() + "/target/release/drift-gateway.exe", //todo we can force user to provide his own path to executable
         // and then we don't need to a) include .exe file in git; b) force user to use windows system (.exe)
@@ -73,7 +53,7 @@ public class HttpGatewayService extends ServiceBase {
         final JsonNode node = client.executeSync(metadataApi.getMarkets());
         return getObjectMapper().convertValue(node, MARKET_INFO_RESPONSE_TYPE);
     }*/
-  
+/*
   public String getBalance() {
     final JsonNode jsonNode = client.executeSync(metadataApi.getBalance());
     return jsonNode.get("balance").asText();
@@ -103,7 +83,7 @@ public class HttpGatewayService extends ServiceBase {
     final OrdersInfoResponse response = getObjectMapper().convertValue(node, OrdersInfoResponse.class);
 
     return response;
-  }
+  }*/
 
   /*
   * public String cancelOrdersByUserIds(List<Integer> userIdsList){
