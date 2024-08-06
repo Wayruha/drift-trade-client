@@ -13,7 +13,8 @@ public class DriftConfig {
   private String gatewayHost = "127.0.0.2";
   private String host = "http://" + gatewayHost + ":" + gatewayPort;
   private String webSocketHost = "wss://dlob.drift.trade/ws";
-  private String gatewayPath = "E:/Work/gateway-0.1.15";
+  private String gatewayExecutablePath = "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe";
+  private String rpcNode = "https://api.mainnet-beta.solana.com";
 
   /**
    * Host connection timeout.

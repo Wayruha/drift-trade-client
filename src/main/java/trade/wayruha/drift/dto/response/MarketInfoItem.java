@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MarketItemInfo {
+public class MarketInfoItem {
   private Integer marketIndex;
   private String symbol;
   private BigDecimal priceStep; //smallest order price increment for the market

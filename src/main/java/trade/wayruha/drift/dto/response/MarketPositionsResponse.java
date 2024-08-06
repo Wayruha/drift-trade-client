@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MarketPositionsResponse {
   @JsonProperty("spot")
-  private List<MarketPositionItem> spotPositionsList; // todo change type
+  private List<MarketPositionItem> spotPositionsList;
   @JsonProperty("perp")
   private List<MarketPositionItem> perpPositionsList;
 }
