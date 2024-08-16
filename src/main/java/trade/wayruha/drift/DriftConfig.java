@@ -11,10 +11,19 @@ import static trade.wayruha.drift.config.Constant.HTTP_CLIENT_TIMEOUT_MS;
 public class DriftConfig {
   private String gatewayPort = "8090";
   private String gatewayHost = "127.0.0.2";
-  private String host = "http://" + gatewayHost + ":" + gatewayPort;
+  private String host;
   private String webSocketHost = "wss://dlob.drift.trade/ws";
-  private String gatewayExecutablePath = "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe";
+  private String gatewayExecutablePath = "../gateway-0.1.15/target/release/drift-gateway.exe";
   private String rpcNode = "https://api.mainnet-beta.solana.com";
+
+  public DriftConfig(String gatewayPort, String gatewayHost, String webSocketHost, String gatewayExecutablePath, String rpcNode) {
+    this.gatewayPort = gatewayPort;
+    this.gatewayHost = gatewayHost;
+    this.host  = "http://" + gatewayHost + ":" + gatewayPort;
+    this.webSocketHost = webSocketHost;
+    this.gatewayExecutablePath = gatewayExecutablePath;
+    this.rpcNode = rpcNode;
+  }
 
   /**
    * Host connection timeout.

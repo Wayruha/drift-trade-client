@@ -30,7 +30,7 @@ public class MetadataServiceTest {
 
   @SneakyThrows
   public static void main(String[] args) {
-    driftConfig = new DriftConfig();
+    driftConfig = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com");
     httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
     httpGatewayService.startGateway();
 
