@@ -38,14 +38,17 @@ public class MetadataServiceTest {
 
     tradeService = new TradeService(driftConfig);
     metadataService = new MetadataService(driftConfig);
+
+		httpGatewayService.waitForGateway(10);
 //    getMarkets();
 //    getBalance();
 //    placeOrder();
 //    cancelAllOrders();
 //    cancelOrdersByUserIds();
+//	  cancelOrdersByIds();
 //    getMarketPosition();
 //    getAllMarketPositions();
-		getPerpExtPositionInfo();
+//		getPerpExtPositionInfo();
 //    getAllOrders();
     httpGatewayService.stopGateway();
   }
@@ -88,6 +91,12 @@ public class MetadataServiceTest {
     final TxConfirmationResponse tx = tradeService.cancelOrdersByUserIds(userIds);
     System.out.println(tx);
   }
+
+	private static void cancelOrdersByIds() {
+		final List<Integer> userIds = new ArrayList<>(List.of(101));
+		final TxConfirmationResponse tx = tradeService.cancelOrdersByIds(userIds);
+		System.out.println(tx);
+	}
 
   private static void getAllMarketPositions() {
     MarketPositionsResponse marketPositions = metadataService.getAllMarketPositions();

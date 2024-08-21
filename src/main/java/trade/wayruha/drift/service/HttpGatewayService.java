@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import trade.wayruha.drift.DriftConfig;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -45,13 +47,39 @@ public class HttpGatewayService {
         log.info("Process destroyed on JVM shutdown.");
       }
     }));
-
-    TimeUnit.SECONDS.sleep(2);
   }
 
-  public void stopGateway() throws InterruptedException {
+  public void stopGateway() {
     if (process != null && process.isAlive()) {
       process.destroy();
     }
   }
+
+	public boolean waitForGateway(int timeoutSeconds) throws InterruptedException {
+		long startTime = System.currentTimeMillis();
+		long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
+
+		while (System.currentTimeMillis() < endTime) {
+			if (isGatewayResponsive()) {
+				return true;
+			}
+			TimeUnit.MILLISECONDS.sleep(500);
+		}
+
+		return false;
+	}
+
+	private boolean isGatewayResponsive() {
+		try {
+			final URL url = new URL("http://" + host + ":" + port + "/leverage");
+			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setConnectTimeout(1000);
+			connection.setReadTimeout(1000);
+			final int responseCode = connection.getResponseCode();
+			return (responseCode == 200);
+		} catch (IOException e) {
+			return false;
+		}
+	}
 }

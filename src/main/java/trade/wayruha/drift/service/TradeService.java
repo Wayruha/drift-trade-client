@@ -1,6 +1,7 @@
 package trade.wayruha.drift.service;
 
 import trade.wayruha.drift.DriftConfig;
+import trade.wayruha.drift.dto.request.CancelOrderByIdsRequest;
 import trade.wayruha.drift.dto.request.CancelOrderByUserIdRequest;
 import trade.wayruha.drift.dto.request.PlaceOrderRequest;
 import trade.wayruha.drift.dto.response.TxConfirmationResponse;
@@ -29,4 +30,9 @@ public class TradeService extends ServiceBase{
     final CancelOrderByUserIdRequest cancelRequest = new CancelOrderByUserIdRequest(userIdsList);
     return client.executeSync(api.deleteOrdersByUserIds(cancelRequest));
   }
+
+	public TxConfirmationResponse cancelOrdersByIds(List<Integer> idsList){
+		final CancelOrderByIdsRequest cancelRequest = new CancelOrderByIdsRequest(idsList);
+		return client.executeSync(api.deleteOrdersByIds(cancelRequest));
+	}
 }

@@ -5,6 +5,7 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.HTTP;
 import retrofit2.http.POST;
+import trade.wayruha.drift.dto.request.CancelOrderByIdsRequest;
 import trade.wayruha.drift.dto.request.CancelOrderByUserIdRequest;
 import trade.wayruha.drift.dto.request.PlaceOrderRequest;
 import trade.wayruha.drift.dto.response.TxConfirmationResponse;
@@ -18,4 +19,7 @@ public interface TradeEndpoints {
 
   @HTTP(method = "DELETE", path = "v2/orders", hasBody = true)
   Call<TxConfirmationResponse> deleteOrdersByUserIds(@Body CancelOrderByUserIdRequest request);
+
+	@HTTP(method = "DELETE", path = "v2/orders", hasBody = true)
+	Call<TxConfirmationResponse> deleteOrdersByIds(@Body CancelOrderByIdsRequest request);
 }
