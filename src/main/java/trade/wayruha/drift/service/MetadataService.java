@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import trade.wayruha.drift.DriftConfig;
 import trade.wayruha.drift.config.HttpClientBuilder;
 import trade.wayruha.drift.dto.request.MarketPositionsRequest;
+import trade.wayruha.drift.dto.request.PerpMarketPositionRequest;
 import trade.wayruha.drift.dto.response.BalanceResponse;
+import trade.wayruha.drift.dto.response.ExtMarketPositionItem;
 import trade.wayruha.drift.dto.response.MarketInfoResponse;
 import trade.wayruha.drift.dto.response.MarketMetadata;
 import trade.wayruha.drift.dto.response.MarketPositionsResponse;
@@ -29,25 +31,6 @@ public class MetadataService extends ServiceBase {
 //    this.client = clientBuilder.buildClient();
   }
 
-//  public List<MarketMetadata> getMarkets() {
-//    Request request = new Request.Builder()
-//        .url(MARKETS_METADATA)
-//        .build();
-//
-//    try (Response response = this.client.newCall(request).execute()) {
-//      if (!response.isSuccessful()) throw new DriftException("Unexpected code " + response);
-//
-//      // Parse the response
-//      ObjectMapper mapper = new ObjectMapper();
-//      final String json = response.body().string();
-//      final ObjectNode jsonNode = mapper.readValue(json, ObjectNode.class);
-//
-//      return mapper.convertValue(jsonNode.get("data"), METADATA_TYPE);
-//    } catch (IOException e) {
-//      throw new DriftException("GET MARKETS_METADATA failed.", e);
-//    }
-//  }
-
   public MarketInfoResponse getMarketsInfo() {
     return client.executeSync(metadataApi.getMarkets());
   }
@@ -59,6 +42,10 @@ public class MetadataService extends ServiceBase {
   public MarketPositionsResponse getMarketPosition(MarketPositionsRequest marketPositionsRequest) {
     return client.executeSync(metadataApi.getPositionsByMarket(marketPositionsRequest.getMarketIndex(), marketPositionsRequest.getMarketType().getName()));
   }
+
+	public ExtMarketPositionItem getPerpMarketPosition(PerpMarketPositionRequest perpMarketPositionRequest){
+		return client.executeSync(metadataApi.getPerpFullPositionInfo(perpMarketPositionRequest.getMarketIndex()));
+	}
 
   public MarketPositionsResponse getAllMarketPositions() {
     return client.executeSync(metadataApi.getAllPositions());

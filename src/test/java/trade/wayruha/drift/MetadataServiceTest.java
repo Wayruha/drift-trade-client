@@ -4,9 +4,11 @@ import lombok.SneakyThrows;
 import trade.wayruha.drift.dto.MarketType;
 import trade.wayruha.drift.dto.OrderType;
 import trade.wayruha.drift.dto.request.MarketPositionsRequest;
+import trade.wayruha.drift.dto.request.PerpMarketPositionRequest;
 import trade.wayruha.drift.dto.request.PlaceOrderParams;
 import trade.wayruha.drift.dto.request.PlaceOrderRequest;
 import trade.wayruha.drift.dto.response.BalanceResponse;
+import trade.wayruha.drift.dto.response.ExtMarketPositionItem;
 import trade.wayruha.drift.dto.response.MarketInfoResponse;
 import trade.wayruha.drift.dto.response.MarketPositionsResponse;
 import trade.wayruha.drift.dto.response.OrdersInfoResponse;
@@ -43,6 +45,7 @@ public class MetadataServiceTest {
 //    cancelOrdersByUserIds();
 //    getMarketPosition();
 //    getAllMarketPositions();
+		getPerpExtPositionInfo();
 //    getAllOrders();
     httpGatewayService.stopGateway();
   }
@@ -96,6 +99,13 @@ public class MetadataServiceTest {
     MarketPositionsResponse marketPositions = metadataService.getMarketPosition(marketPositionsRequest);
     System.out.println(marketPositions);
   }
+
+	private static void getPerpExtPositionInfo(){
+		PerpMarketPositionRequest perpMarketPositionRequest = new PerpMarketPositionRequest(0);
+		ExtMarketPositionItem positionItem = metadataService.getPerpMarketPosition(perpMarketPositionRequest);
+		System.out.println(positionItem);
+
+	}
 
   private static void getAllOrders() {
     final OrdersInfoResponse orders = metadataService.getAllOrders();
