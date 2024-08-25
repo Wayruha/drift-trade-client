@@ -15,15 +15,17 @@ public class DriftConfig {
   private String webSocketHost = "wss://dlob.drift.trade/ws";
   private String gatewayExecutablePath = "../gateway-0.1.15/target/release/drift-gateway.exe";
   private String rpcNode = "https://api.mainnet-beta.solana.com";
+	private int pingRate = 1;
 
-  public DriftConfig(String gatewayPort, String gatewayHost, String webSocketHost, String gatewayExecutablePath, String rpcNode) {
+  public DriftConfig(String gatewayPort, String gatewayHost, String webSocketHost, String gatewayExecutablePath, String rpcNode, int pingRate) {
     this.gatewayPort = gatewayPort;
     this.gatewayHost = gatewayHost;
     this.host  = "http://" + gatewayHost + ":" + gatewayPort;
     this.webSocketHost = webSocketHost;
     this.gatewayExecutablePath = gatewayExecutablePath;
     this.rpcNode = rpcNode;
-  }
+		this.pingRate = pingRate;
+	}
 
   /**
    * Host connection timeout.

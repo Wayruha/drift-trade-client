@@ -10,7 +10,7 @@ import trade.wayruha.drift.websocket.WebSocketSubscriptionClient;
 public class WebSocketTest {
   @SneakyThrows
   public static void main(String[] args) {
-    final DriftConfig config = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com");
+    final DriftConfig config = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "../gateway-0.1.15/target/release/drift-gateway.exe", "", 0);
     final WebSocketClientFactory factory = new WebSocketClientFactory(config);
     final Callback callback = new Callback();
     final WebSocketSubscriptionClient<OrderBookUpdate> subscription = factory.perpOrderBookSubscription("SOL", callback);

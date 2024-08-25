@@ -3,9 +3,11 @@ package trade.wayruha.drift.websocket;
 import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.Response;
 import trade.wayruha.drift.dto.wsresponse.OrderBookUpdate;
+import trade.wayruha.drift.dto.wsresponse.UserOrderUpdate;
 
 public interface WebSocketCallback<T> {
     TypeReference<OrderBookUpdate> ORDER_BOOK_UPDATE_TYPE = new TypeReference<>() {};
+    TypeReference<UserOrderUpdate> USER_ORDER_UPDATE_TYPE = new TypeReference<>() {};
 
     /**
      * Be called when the request successful.

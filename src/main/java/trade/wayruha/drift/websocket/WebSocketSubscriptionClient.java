@@ -17,6 +17,7 @@ import trade.wayruha.drift.config.ApiClient;
 import trade.wayruha.drift.config.Constant;
 import trade.wayruha.drift.dto.wsrequest.WSMessage;
 import trade.wayruha.drift.dto.wsrequest.WSSubscription;
+import trade.wayruha.drift.dto.wsresponse.UserOrderUpdate;
 import trade.wayruha.drift.util.IdGenerator;
 
 import java.util.HashSet;
@@ -189,15 +190,21 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
       }
       log.debug("{} onMessage WS event: {}", logPrefix, text);
 
-      final JsonNode dataNode = response.get("data");
-      final String dataJson = dataNode.textValue();
-      final T data = objectMapper.readValue(dataJson, callback.getType());
-      callback.onResponse(data);
-    } catch (Exception e) {
-      log.error("{} WS failed. Response: {}", log, text, e);
-      closeOnError(e);
-    }
-  }
+			final JsonNode dataNode = response.get("data");
+
+			if (channel.get().equalsIgnoreCase("orderbook")) {
+				final String dataJson = dataNode.textValue();
+				final T data = objectMapper.readValue(dataJson, callback.getType());
+				callback.onResponse(data);
+			} else {
+				UserOrderUpdate orderUpdates = new UserOrderUpdate(dataNode, objectMapper);
+				callback.onResponse((T) orderUpdates);
+			}
+		} catch (Exception e) {
+			log.error("{} WS failed. Response: {}", log, text, e);
+			closeOnError(e);
+		}
+	}
 
   @Override
   public void onMessage(WebSocket webSocket, ByteString bytes) {
@@ -252,16 +259,19 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
 
   class PingTask implements Runnable {
 
-    @SneakyThrows
-    @Override
-    public void run() {
-      try {
-        ping();
-      } catch (Exception ex) {
-        log.error("{} Ping error. Try to reconnect and send again in {} sec...", logPrefix, WEB_SOCKET_RECONNECTION_DELAY_MS / 1000);
-        Thread.sleep(WEB_SOCKET_RECONNECTION_DELAY_MS);
-        reConnect();
-      }
-    }
-  }
+		@SneakyThrows
+		@Override
+		public void run() {
+			if (config.getPingRate() == -1)
+				return;
+
+			try {
+				ping();
+			} catch (Exception ex) {
+				log.error("{} Ping error. Try to reconnect and send again in {} sec...", logPrefix, WEB_SOCKET_RECONNECTION_DELAY_MS / 1000);
+				Thread.sleep(WEB_SOCKET_RECONNECTION_DELAY_MS);
+				reConnect();
+			}
+		}
+	}
 }

@@ -66,12 +66,12 @@ public class HttpGatewayService {
 			TimeUnit.MILLISECONDS.sleep(500);
 		}
 
-		return false;
+		throw new RuntimeException("Failed to start gateway");
 	}
 
 	private boolean isGatewayResponsive() {
 		try {
-			final URL url = new URL("http://" + host + ":" + port + "/leverage");
+			final URL url = new URL("http://" + host + ":" + port + "/v2/leverage");
 			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setConnectTimeout(1000);
