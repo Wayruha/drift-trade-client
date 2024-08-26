@@ -11,17 +11,17 @@ public class WSSubscription extends WSMessage {
   protected final String type;
   protected final String marketType;
   protected final String market;
-	protected final String method;
-	protected final Integer subAccountId;
+  protected final String method;
+  protected final Integer subAccountId;
 
   public WSSubscription(String type, String marketType, String channel, String market, String method, Integer subAccountId) {
     super(channel);
     this.type = type;
     this.marketType = marketType;
     this.market = market;
-		this.method = method;
-		this.subAccountId = subAccountId;
-	}
+    this.method = method;
+    this.subAccountId = subAccountId;
+  }
 
   public static WSSubscription perpOrderBookSubscription(String coin) {
     return new WSSubscription("subscribe", "perp", "orderbook", coin.toUpperCase() + "-PERP", null, null);
@@ -39,11 +39,13 @@ public class WSSubscription extends WSMessage {
     return new WSSubscription("unsubscribe", "perp", "orderbook", coin.toUpperCase(), null, null);
   }
 
-	public static WSSubscription privateUpdatesSubscription() {
-		return new WSSubscription(null, null, null, null, "subscribe", 0);
-	}
+  public static WSSubscription privateUpdatesSubscription(Integer subAccountId) {
+    int subAccount = subAccountId != null ? subAccountId : 0;
+    return new WSSubscription(null, null, null, null, "subscribe", subAccount);
+  }
 
-	public static WSSubscription unsubscribePrivateUpdates() {
-		return new WSSubscription(null, null, null, null, "unsubscribe", 0);
-	}
+  public static WSSubscription unsubscribePrivateUpdates(Integer subAccountId) {
+    int subAccount = subAccountId != null ? subAccountId : 0;
+    return new WSSubscription(null, null, null, null, "unsubscribe", subAccount);
+  }
 }

@@ -11,18 +11,21 @@ import trade.wayruha.drift.service.HttpGatewayService;
 import java.util.Set;
 
 public class WebSocketPrivateClientFactory {
+	private static final String WS_GATEWAY_PORT = "1337";
 	private final ApiClient apiClient;
 	@Setter
 	private ObjectMapper objectMapper;
 
 	public WebSocketPrivateClientFactory(DriftConfig config) {
-		config.setWebSocketHost("http://" + config.getGatewayHost() + ":1337");
+
+
+		config.setWebSocketHost("http://" + config.getGatewayHost() + ":" + WS_GATEWAY_PORT);
 		this.apiClient = new ApiClient(config);
 		this.objectMapper = config.getObjectMapper();
 	}
 
 	public WebSocketSubscriptionClient<UserOrderUpdate> privateUpdatesSubscription(WebSocketCallback<UserOrderUpdate> callback){
-		final WSSubscription sub = WSSubscription.privateUpdatesSubscription();
+		final WSSubscription sub = WSSubscription.privateUpdatesSubscription(null);
 		final WebSocketSubscriptionClient<UserOrderUpdate> client = new WebSocketSubscriptionClient<>(apiClient, objectMapper, callback);
 		client.connect(Set.of(sub));
 		return client;

@@ -87,7 +87,10 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
     } else {
       log.warn("{} Already connected to channels {}", logPrefix, this.subscriptions);
     }
-    this.scheduledPingTask = scheduler.scheduleAtFixedRate(new PingTask(), this.config.getWebSocketPingIntervalSec(), this.config.getWebSocketPingIntervalSec(), TimeUnit.SECONDS);
+
+    if(config.getWebSocketPingIntervalSec() > 0) {
+      this.scheduledPingTask = scheduler.scheduleAtFixedRate(new PingTask(), this.config.getWebSocketPingIntervalSec(), this.config.getWebSocketPingIntervalSec(), TimeUnit.SECONDS);
+    }
     reconnectionCounter.set(0); //reset reconnection indexer due to successful connection
     this.subscribe(subscriptions);
   }
@@ -190,21 +193,21 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
       }
       log.debug("{} onMessage WS event: {}", logPrefix, text);
 
-			final JsonNode dataNode = response.get("data");
+      final JsonNode dataNode = response.get("data");
 
-			if (channel.get().equalsIgnoreCase("orderbook")) {
-				final String dataJson = dataNode.textValue();
-				final T data = objectMapper.readValue(dataJson, callback.getType());
-				callback.onResponse(data);
-			} else {
-				UserOrderUpdate orderUpdates = new UserOrderUpdate(dataNode, objectMapper);
-				callback.onResponse((T) orderUpdates);
-			}
-		} catch (Exception e) {
-			log.error("{} WS failed. Response: {}", log, text, e);
-			closeOnError(e);
-		}
-	}
+      if (channel.get().equalsIgnoreCase("orderbook")) {
+        final String dataJson = dataNode.textValue();
+        final T data = objectMapper.readValue(dataJson, callback.getType());
+        callback.onResponse(data);
+      } else {
+        UserOrderUpdate orderUpdates = new UserOrderUpdate(); //todo переробити на автоматичний парсинг джексоном
+        callback.onResponse((T) orderUpdates);
+      }
+    } catch (Exception e) {
+      log.error("{} WS failed. Response: {}", log, text, e);
+      closeOnError(e);
+    }
+  }
 
   @Override
   public void onMessage(WebSocket webSocket, ByteString bytes) {
@@ -259,19 +262,16 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
 
   class PingTask implements Runnable {
 
-		@SneakyThrows
-		@Override
-		public void run() {
-			if (config.getPingRate() == -1)
-				return;
-
-			try {
-				ping();
-			} catch (Exception ex) {
-				log.error("{} Ping error. Try to reconnect and send again in {} sec...", logPrefix, WEB_SOCKET_RECONNECTION_DELAY_MS / 1000);
-				Thread.sleep(WEB_SOCKET_RECONNECTION_DELAY_MS);
-				reConnect();
-			}
-		}
-	}
+    @SneakyThrows
+    @Override
+    public void run() {
+      try {
+        ping();
+      } catch (Exception ex) {
+        log.error("{} Ping error. Try to reconnect and send again in {} sec...", logPrefix, WEB_SOCKET_RECONNECTION_DELAY_MS / 1000);
+        Thread.sleep(WEB_SOCKET_RECONNECTION_DELAY_MS);
+        reConnect();
+      }
+    }
+  }
 }

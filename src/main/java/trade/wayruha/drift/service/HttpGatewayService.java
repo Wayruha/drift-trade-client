@@ -1,5 +1,7 @@
 package trade.wayruha.drift.service;
 
+import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import trade.wayruha.drift.DriftConfig;
 
@@ -11,11 +13,15 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class HttpGatewayService {
+  private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
   private final String host;
   private final Integer port;
   private final String privateKey;
   private final String gatewayPath;
   private final String rpcNode;
+  private final URL gatewayHealthcheckUrl;
+  @Setter
+  private int timeoutSeconds;
   private Process process;
 
   private static final String DRIFT_GATEWAY_KEY = "DRIFT_GATEWAY_KEY";
@@ -26,9 +32,11 @@ public class HttpGatewayService {
     this.privateKey = privateKey;
     this.gatewayPath = config.getGatewayExecutablePath();
     this.rpcNode = config.getRpcNode();
+    this.gatewayHealthcheckUrl = createGatewayHealthUrl();
+    this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
   }
 
-  public void startGateway() throws IOException, InterruptedException {
+  public void startGateway() throws IOException {
     final ProcessBuilder processBuilder = new ProcessBuilder(
         gatewayPath,
         rpcNode,
@@ -55,31 +63,35 @@ public class HttpGatewayService {
     }
   }
 
-	public boolean waitForGateway(int timeoutSeconds) throws InterruptedException {
-		long startTime = System.currentTimeMillis();
-		long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
+  public boolean waitForGateway() throws InterruptedException {
+    long startTime = System.currentTimeMillis();
+    long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
 
-		while (System.currentTimeMillis() < endTime) {
-			if (isGatewayResponsive()) {
-				return true;
-			}
-			TimeUnit.MILLISECONDS.sleep(500);
-		}
+    while (System.currentTimeMillis() < endTime) {
+      if (isGatewayResponsive()) {
+        return true;
+      }
+      TimeUnit.MILLISECONDS.sleep(500);
+    }
 
-		throw new RuntimeException("Failed to start gateway");
-	}
+    throw new RuntimeException("Failed to start gateway");
+  }
 
-	private boolean isGatewayResponsive() {
-		try {
-			final URL url = new URL("http://" + host + ":" + port + "/v2/leverage");
-			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setConnectTimeout(1000);
-			connection.setReadTimeout(1000);
-			final int responseCode = connection.getResponseCode();
-			return (responseCode == 200);
-		} catch (IOException e) {
-			return false;
-		}
-	}
+  private boolean isGatewayResponsive() {
+    try {
+      final HttpURLConnection connection = (HttpURLConnection) gatewayHealthcheckUrl.openConnection();
+      connection.setRequestMethod("GET");
+      connection.setConnectTimeout(1000);
+      connection.setReadTimeout(1000);
+      final int responseCode = connection.getResponseCode();
+      return (responseCode == 200);
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
+  @SneakyThrows
+  private URL createGatewayHealthUrl() {
+    return new URL("http://" + host + ":" + port + "/v2/leverage");
+  }
 }

@@ -7,10 +7,11 @@ import trade.wayruha.drift.websocket.WebSocketCallback;
 import trade.wayruha.drift.websocket.WebSocketClientFactory;
 import trade.wayruha.drift.websocket.WebSocketSubscriptionClient;
 
-public class WebSocketTest {
+public class OrderBookWSTest {
   @SneakyThrows
   public static void main(String[] args) {
-    final DriftConfig config = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "../gateway-0.1.15/target/release/drift-gateway.exe", "", 0);
+    final DriftConfig config = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "../gateway-0.1.15/target/release/drift-gateway.exe", "");
+    config.setWebSocketPingIntervalSec(0);
     final WebSocketClientFactory factory = new WebSocketClientFactory(config);
     final Callback callback = new Callback();
     final WebSocketSubscriptionClient<OrderBookUpdate> subscription = factory.perpOrderBookSubscription("SOL", callback);
@@ -22,7 +23,6 @@ public class WebSocketTest {
     @Override
     public void onResponse(OrderBookUpdate response) {
       System.out.println(response);
-
     }
 
     @Override

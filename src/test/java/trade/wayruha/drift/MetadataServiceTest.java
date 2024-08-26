@@ -32,14 +32,15 @@ public class MetadataServiceTest {
 
   @SneakyThrows
   public static void main(String[] args) {
-    driftConfig = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com", 0);
+    driftConfig = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com");
+    driftConfig.setWebSocketPingIntervalSec(0);
     httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
     httpGatewayService.startGateway();
 
     tradeService = new TradeService(driftConfig);
     metadataService = new MetadataService(driftConfig);
 
-		httpGatewayService.waitForGateway(10);
+    httpGatewayService.waitForGateway();
 //    getMarkets();
 //    getBalance();
 //    placeOrder();
@@ -53,20 +54,12 @@ public class MetadataServiceTest {
     httpGatewayService.stopGateway();
   }
 
-  private static void getMarkets(){
+  private static void getMarkets() {
     final MarketInfoResponse marketsInfo = metadataService.getMarketsInfo();
     System.out.println(marketsInfo);
     assert !marketsInfo.getPerpPositionsList().isEmpty();
     assert !marketsInfo.getSpotPositionsList().isEmpty();
   }
-
-//  private static void getMarkets() {
-//    DriftConfig driftConfig = new DriftConfig();
-//    final MetadataService service = new MetadataService(driftConfig);
-//    final List<MarketMetadata> markets = service.getMarkets();
-//    assert markets != null;
-//    assert markets.size() > 0;
-//  }
 
   private static void getBalance() {
     final BalanceResponse balance = metadataService.getBalance();
@@ -74,8 +67,6 @@ public class MetadataServiceTest {
   }
 
   private static void placeOrder() {
-//    final PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest(List.of(PlaceOrderParams.PerpOracleOrder(0, BigDecimal.valueOf(0.1), false, OrderType.LIMIT, 20, 101)));
-//    final PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest(List.of(PlaceOrderParams.SpotOrder(0, BigDecimal.valueOf(0.1), BigDecimal.valueOf(150), false, OrderType.LIMIT, 101, false, 0)));
     final PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest(List.of(PlaceOrderParams.PerpOrder(0, BigDecimal.valueOf(0.1), BigDecimal.valueOf(120), false, OrderType.LIMIT, 101)));
     TxConfirmationResponse tx = tradeService.placeOrder(placeOrderRequest);
     System.out.println(tx);
@@ -92,11 +83,11 @@ public class MetadataServiceTest {
     System.out.println(tx);
   }
 
-	private static void cancelOrdersByIds() {
-		final List<Integer> userIds = new ArrayList<>(List.of(101));
-		final TxConfirmationResponse tx = tradeService.cancelOrdersByIds(userIds);
-		System.out.println(tx);
-	}
+  private static void cancelOrdersByIds() {
+    final List<Integer> userIds = new ArrayList<>(List.of(101));
+    final TxConfirmationResponse tx = tradeService.cancelOrdersByIds(userIds);
+    System.out.println(tx);
+  }
 
   private static void getAllMarketPositions() {
     MarketPositionsResponse marketPositions = metadataService.getAllMarketPositions();
@@ -109,12 +100,12 @@ public class MetadataServiceTest {
     System.out.println(marketPositions);
   }
 
-	private static void getPerpExtPositionInfo(){
-		PerpMarketPositionRequest perpMarketPositionRequest = new PerpMarketPositionRequest(0);
-		ExtMarketPositionItem positionItem = metadataService.getPerpMarketPosition(perpMarketPositionRequest);
-		System.out.println(positionItem);
+  private static void getPerpExtPositionInfo() {
+    PerpMarketPositionRequest perpMarketPositionRequest = new PerpMarketPositionRequest(0);
+    ExtMarketPositionItem positionItem = metadataService.getPerpMarketPosition(perpMarketPositionRequest);
+    System.out.println(positionItem);
 
-	}
+  }
 
   private static void getAllOrders() {
     final OrdersInfoResponse orders = metadataService.getAllOrders();

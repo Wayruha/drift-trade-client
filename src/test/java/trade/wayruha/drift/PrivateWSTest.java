@@ -8,7 +8,7 @@ import trade.wayruha.drift.websocket.WebSocketCallback;
 import trade.wayruha.drift.websocket.WebSocketPrivateClientFactory;
 import trade.wayruha.drift.websocket.WebSocketSubscriptionClient;
 
-public class WebSocketPrivateTest {
+public class PrivateWSTest {
 
 	private static DriftConfig driftConfig;
 	private static HttpGatewayService httpGatewayService;
@@ -16,14 +16,15 @@ public class WebSocketPrivateTest {
 
 	@SneakyThrows
 	public static void main(String[] args) {
-		driftConfig = new DriftConfig("8090", "127.0.0.10", "127.0.0.10:1337", "../gateway-1.0.0/target/release/drift-gateway.exe", "", -1);
+		driftConfig = new DriftConfig("8090", "127.0.0.10", "127.0.0.10:1337", "../gateway-1.0.0/target/release/drift-gateway.exe", "");
+		driftConfig.setWebSocketPingIntervalSec(0);
 
 		httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
 		httpGatewayService.startGateway();
-		httpGatewayService.waitForGateway(10);
+		httpGatewayService.waitForGateway();
 
 		final WebSocketPrivateClientFactory factory = new WebSocketPrivateClientFactory(driftConfig);
-		final WebSocketPrivateTest.Callback callback = new WebSocketPrivateTest.Callback();
+		final PrivateWSTest.Callback callback = new PrivateWSTest.Callback();
 		final WebSocketSubscriptionClient<UserOrderUpdate> subscription = factory.privateUpdatesSubscription(callback);
 		Thread.sleep(5_000);
 	}
