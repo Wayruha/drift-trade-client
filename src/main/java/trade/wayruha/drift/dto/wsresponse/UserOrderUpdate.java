@@ -1,6 +1,7 @@
 package trade.wayruha.drift.dto.wsresponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,56 +11,70 @@ import java.math.BigDecimal;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserOrderUpdate {
-  private static final Logger log = LoggerFactory.getLogger(UserOrderUpdate.class);
-  private CreateUpdate createUpdate;
-  private CancelUpdate cancelUpdate;
-  private ExpireUpdate expireUpdate;
-  private FillUpdate fillUpdate;
-  private ModifyUpdate modifyUpdate;
-  private FundingPaymentUpdate fundingPaymentUpdate;
+	private static final Logger log = LoggerFactory.getLogger(UserOrderUpdate.class);
+	@JsonProperty("orderCreate")
+	private CreateUpdate createUpdate;
+	@JsonProperty("orderCancel")
+	private CancelUpdate cancelUpdate;
+	@JsonProperty("orderExpire")
+	private ExpireUpdate expireUpdate;
+	@JsonProperty("fill")
+	private FillUpdate fillUpdate;
+	@JsonProperty("orderCancelMissing")
+	private CancelMissingUpdate cancelMissingUpdate;
+	@JsonProperty("fundingPayment")
+	private FundingPaymentUpdate fundingPaymentUpdate;
 
-  public UserUpdatesType getUpdatesType() {
-    if (cancelUpdate != null) {
-      return UserUpdatesType.CANCEL;
-    } else if (expireUpdate != null) {
-      return UserUpdatesType.EXPIRE;
-    } else if (createUpdate != null) {
-      return UserUpdatesType.CREATE;
-    } else if (fillUpdate != null) {
-      return UserUpdatesType.FILL;
-    } /*else if (jsonNode.has("orderCancelMissing")) { //todo!
-      return UserUpdatesType.EXPIRE;
-    } */ else if (modifyUpdate != null) {
-      return UserUpdatesType.MODIFY;
-    } else if (fundingPaymentUpdate != null) {
-      return UserUpdatesType.FUNDING;
-    } else {
-      throw new IllegalStateException("No valid data type for this WSMessage");
-    }
-  }
+	public UserUpdatesType getUpdatesType() {
+		if (cancelUpdate != null) {
+			return UserUpdatesType.CANCEL;
+		} else if (expireUpdate != null) {
+			return UserUpdatesType.EXPIRE;
+		} else if (createUpdate != null) {
+			return UserUpdatesType.CREATE;
+		} else if (fillUpdate != null) {
+			return UserUpdatesType.FILL;
+		} else if (cancelMissingUpdate != null) {
+			return UserUpdatesType.CANCEL_MISSING;
+		} else if (fundingPaymentUpdate != null) {
+			return UserUpdatesType.FUNDING;
+		} else {
+			throw new IllegalStateException("No valid data type for this WSMessage");
+		}
+	}
 
-  @Data
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class CreateUpdate {
-    Long slot;
-    BigDecimal price;
-    BigDecimal amount;
-    BigDecimal filled;
-    BigDecimal triggerPrice;
-    BigDecimal auctionStartPrice;
-    BigDecimal auctionEndPrice;
-    Long maxTs;
-    BigDecimal oraclePriceOffset;
-    Long orderId;
-    Integer marketIndex;
-    String OrderType;
-    String marketType;
-    Long userOrderId;
-    String direction;
-    Boolean reduceOnly;
-    Boolean postOnly;
-    Long auctionDuration;
-  }
+	@Data
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class CreateUpdate {
+
+		Order order;
+		Long ts;
+		String signature;
+		Long txIdx;
+
+		@Data
+		@JsonIgnoreProperties(ignoreUnknown = true)
+		public static class Order{
+			Long slot;
+			BigDecimal price;
+			BigDecimal amount;
+			BigDecimal filled;
+			BigDecimal triggerPrice;
+			BigDecimal auctionStartPrice;
+			BigDecimal auctionEndPrice;
+			Long maxTs;
+			BigDecimal oraclePriceOffset;
+			Long orderId;
+			Integer marketIndex;
+			String OrderType;
+			String marketType;
+			Long userOrderId;
+			String direction;
+			Boolean reduceOnly;
+			Boolean postOnly;
+			Long auctionDuration;
+		}
+	}
 
   @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
@@ -101,14 +116,14 @@ public class UserOrderUpdate {
     String takerFee;
   }
 
-  @Data
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class ModifyUpdate {
-    Long userOrderId;
-    Long orderId;
-    Long ts;
-    String signature;
-  }
+	@Data
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class CancelMissingUpdate {
+		Long userOrderId;
+		Long orderId;
+		Long ts;
+		String signature;
+	}
 
   @Data
   @JsonIgnoreProperties(ignoreUnknown = true)

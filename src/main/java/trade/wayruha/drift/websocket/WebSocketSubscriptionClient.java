@@ -200,9 +200,9 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
         final T data = objectMapper.readValue(dataJson, callback.getType());
         callback.onResponse(data);
       } else {
-        UserOrderUpdate orderUpdates = new UserOrderUpdate(); //todo переробити на автоматичний парсинг джексоном
-        callback.onResponse((T) orderUpdates);
-      }
+				final T data = objectMapper.convertValue(dataNode, callback.getType());
+        callback.onResponse(data);
+			}
     } catch (Exception e) {
       log.error("{} WS failed. Response: {}", log, text, e);
       closeOnError(e);
