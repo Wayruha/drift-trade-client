@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import static trade.wayruha.drift.config.Constant.HTTP_CLIENT_TIMEOUT_MS;
 
 @Data
+@NoArgsConstructor
 public class DriftConfig {
   private String gatewayPort = "8090";
   private String gatewayHost = "127.0.0.2";
