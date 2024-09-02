@@ -195,14 +195,15 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
 
       final JsonNode dataNode = response.get("data");
 
+      final T data;
       if (channel.get().equalsIgnoreCase("orderbook")) {
         final String dataJson = dataNode.textValue();
-        final T data = objectMapper.readValue(dataJson, callback.getType());
-        callback.onResponse(data);
+        data = objectMapper.readValue(dataJson, callback.getType());
       } else {
-				final T data = objectMapper.convertValue(dataNode, callback.getType());
-        callback.onResponse(data);
+				data = objectMapper.convertValue(dataNode, callback.getType());
 			}
+
+      callback.onResponse(data);
     } catch (Exception e) {
       log.error("{} WS failed. Response: {}", log, text, e);
       closeOnError(e);

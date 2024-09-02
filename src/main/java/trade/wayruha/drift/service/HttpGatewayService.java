@@ -1,10 +1,12 @@
 package trade.wayruha.drift.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import trade.wayruha.drift.DriftConfig;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -22,7 +24,7 @@ public class HttpGatewayService {
   private final URL gatewayHealthcheckUrl;
   @Setter
   private int timeoutSeconds;
-  private Process process;
+  private ProcessResource processResource;
 
   private static final String DRIFT_GATEWAY_KEY = "DRIFT_GATEWAY_KEY";
 
@@ -36,7 +38,7 @@ public class HttpGatewayService {
     this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
   }
 
-  public void startGateway() throws IOException {
+  public ProcessResource startGateway() throws IOException {
     final ProcessBuilder processBuilder = new ProcessBuilder(
         gatewayPath,
         rpcNode,
@@ -47,7 +49,7 @@ public class HttpGatewayService {
     final Map<String, String> environment = processBuilder.environment();
     environment.put(DRIFT_GATEWAY_KEY, privateKey);
 
-    process = processBuilder.start();
+    final Process process = processBuilder.start();
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (process.isAlive()) {
@@ -55,12 +57,8 @@ public class HttpGatewayService {
         log.info("Process destroyed on JVM shutdown.");
       }
     }));
-  }
-
-  public void stopGateway() {
-    if (process != null && process.isAlive()) {
-      process.destroy();
-    }
+    this.processResource = new ProcessResource(process);
+    return processResource;
   }
 
   public boolean waitForGateway() throws InterruptedException {
@@ -93,5 +91,18 @@ public class HttpGatewayService {
   @SneakyThrows
   private URL createGatewayHealthUrl() {
     return new URL("http://" + host + ":" + port + "/v2/leverage");
+  }
+
+  @RequiredArgsConstructor
+  public static class ProcessResource implements Closeable {
+    private final Process process;
+
+    @Override
+    public void close() {
+      if (process != null) {
+        process.destroy();
+        log.info("HttpGateway closed successfully...");
+      }
+    }
   }
 }

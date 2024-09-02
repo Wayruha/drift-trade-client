@@ -17,8 +17,6 @@ public class WebSocketPrivateClientFactory {
 	private ObjectMapper objectMapper;
 
 	public WebSocketPrivateClientFactory(DriftConfig config) {
-
-
 		config.setWebSocketHost("http://" + config.getGatewayHost() + ":" + WS_GATEWAY_PORT);
 		this.apiClient = new ApiClient(config);
 		this.objectMapper = config.getObjectMapper();

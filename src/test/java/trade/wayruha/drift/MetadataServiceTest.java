@@ -35,7 +35,7 @@ public class MetadataServiceTest {
     driftConfig = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com");
     driftConfig.setWebSocketPingIntervalSec(0);
     httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
-    httpGatewayService.startGateway();
+    final HttpGatewayService.ProcessResource process = httpGatewayService.startGateway();
 
     tradeService = new TradeService(driftConfig);
     metadataService = new MetadataService(driftConfig);
@@ -51,14 +51,14 @@ public class MetadataServiceTest {
 //    getAllMarketPositions();
 //		getPerpExtPositionInfo();
 //    getAllOrders();
-    httpGatewayService.stopGateway();
+    process.close();
   }
 
   private static void getMarkets() {
     final MarketInfoResponse marketsInfo = metadataService.getMarketsInfo();
     System.out.println(marketsInfo);
-    assert !marketsInfo.getPerpPositionsList().isEmpty();
-    assert !marketsInfo.getSpotPositionsList().isEmpty();
+    assert !marketsInfo.getPerpetualItems().isEmpty();
+    assert !marketsInfo.getSpotItems().isEmpty();
   }
 
   private static void getBalance() {
