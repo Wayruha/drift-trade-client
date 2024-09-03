@@ -68,8 +68,8 @@ public class UserOrderUpdate {
       private BigDecimal oraclePriceOffset;
       private Long orderId;
       private Integer marketIndex;
-      private OrderType orderType; //todo переконатися що значення підходять
-      private MarketType marketType; //todo переконатися що значення підходять
+      private OrderType orderType;
+      private MarketType marketType;
       private Long userOrderId;
       private OrderSide direction;
       private Boolean reduceOnly;
