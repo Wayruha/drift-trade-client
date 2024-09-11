@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import static trade.wayruha.drift.config.Constant.HTTP_CLIENT_TIMEOUT_MS;
 
 @Data
-@NoArgsConstructor
 public class DriftConfig {
   private String gatewayPort = "8090";
   private String gatewayHost = "127.0.0.2";
@@ -25,6 +24,10 @@ public class DriftConfig {
     this.webSocketHost = webSocketHost;
     this.gatewayExecutablePath = gatewayExecutablePath;
     this.rpcNode = rpcNode;
+  }
+
+  public DriftConfig(){
+	  this.host = "http://" + gatewayHost + ":" + gatewayPort;
   }
 
   /**
