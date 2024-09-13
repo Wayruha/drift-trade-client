@@ -196,7 +196,7 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
       final JsonNode dataNode = response.get("data");
 
       final T data;
-      if (channel.get().equalsIgnoreCase("orderbook")) {
+      if (channel.get().contains("orderbook")) {
         final String dataJson = dataNode.textValue();
         data = objectMapper.readValue(dataJson, callback.getType());
       } else {
