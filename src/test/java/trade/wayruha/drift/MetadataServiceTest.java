@@ -32,26 +32,26 @@ public class MetadataServiceTest {
 
   @SneakyThrows
   public static void main(String[] args) {
-    driftConfig = new DriftConfig("8090", "127.0.0.1", "wss://dlob.drift.trade/ws", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com");
-    driftConfig.setWebSocketPingIntervalSec(0);
-    httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
-    final HttpGatewayService.ProcessResource process = httpGatewayService.startGateway();
+    driftConfig = new DriftConfig("8095", "127.0.0.1", "wss://dlob.drift.trade/ws", "8096", "E:/Work/gateway-0.1.15/target/release/drift-gateway.exe", "https://api.mainnet-beta.solana.com");
+//    driftConfig.setWebSocketPingIntervalSec(0);
+//    httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
+//    final HttpGatewayService.ProcessResource process = httpGatewayService.startGateway();
 
     tradeService = new TradeService(driftConfig);
     metadataService = new MetadataService(driftConfig);
 
-    httpGatewayService.waitForGateway();
+//    httpGatewayService.waitForGateway(1000);
 //    getMarkets();
-//    getBalance();
-//    placeOrder();
+    getBalance();
+//   placeOrder();
 //    cancelAllOrders();
 //    cancelOrdersByUserIds();
 //	  cancelOrdersByIds();
 //    getMarketPosition();
-//    getAllMarketPositions();
+    getAllMarketPositions();
 //		getPerpExtPositionInfo();
 //    getAllOrders();
-    process.close();
+//    process.close();
   }
 
   private static void getMarkets() {
@@ -84,7 +84,7 @@ public class MetadataServiceTest {
   }
 
   private static void cancelOrdersByIds() {
-    final List<Integer> userIds = new ArrayList<>(List.of(101));
+    final List<Integer> userIds = new ArrayList<>(List.of(280));
     final TxConfirmationResponse tx = tradeService.cancelOrdersByIds(userIds);
     System.out.println(tx);
   }

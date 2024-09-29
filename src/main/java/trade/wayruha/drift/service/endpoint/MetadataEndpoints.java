@@ -11,22 +11,22 @@ import trade.wayruha.drift.dto.response.MarketPositionsResponse;
 import trade.wayruha.drift.dto.response.OrdersInfoResponse;
 
 public interface MetadataEndpoints {
-  @GET("v2/balance")
+  @GET("v1/balance")
   Call<BalanceResponse> getBalance();
 
   @GET("v2/positions")
   Call<MarketPositionsResponse> getPositionsByMarket(@Query("marketIndex") int marketIndex,
                                                      @Query("marketType") String marketType);
 
-	@GET("/v2/positionInfo/{id}")
+	@GET("/v1/positionInfo/{id}")
 	Call<ExtMarketPositionItem> getPerpFullPositionInfo(@Path("id") int id);
 
-  @GET("v2/positions")
+  @GET("v1/positions")
   Call<MarketPositionsResponse> getAllPositions();
 
   @GET("v2/orders")
   Call<OrdersInfoResponse> getAllOrders();
 
-  @GET("v2/markets")
+  @GET("v1/markets")
   Call<MarketInfoResponse> getMarkets();
 }

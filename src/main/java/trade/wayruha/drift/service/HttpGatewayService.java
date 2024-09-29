@@ -18,6 +18,7 @@ public class HttpGatewayService {
   private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
   private final String host;
   private final Integer port;
+//  private final Integer wsPort;
   private final String privateKey;
   private final String gatewayPath;
   private final String rpcNode;
@@ -39,15 +40,17 @@ public class HttpGatewayService {
   }
 
   public ProcessResource startGateway() throws IOException {
-    final ProcessBuilder processBuilder = new ProcessBuilder(
-        gatewayPath,
-        rpcNode,
-        "--port", port.toString(),
-        "--host", host
-    );
+	  final ProcessBuilder processBuilder = new ProcessBuilder(
+		  "npx", "ts-node", "src/index.ts",  // Command to run the TypeScript file
+		  "--rpc", rpcNode,      // Passing RPC node from the config
+		  "--host", host,                    // Host from the config
+		  "--port", port.toString(),         // Port from the config
+		  "--ws_port", "8096",    // WebSocket port from the config
+		  "--private_key", privateKey // Private key as an argument
+	  );
 
-    final Map<String, String> environment = processBuilder.environment();
-    environment.put(DRIFT_GATEWAY_KEY, privateKey);
+//    final Map<String, String> environment = processBuilder.environment();
+//    environment.put(DRIFT_GATEWAY_KEY, privateKey);
 
     final Process process = processBuilder.start();
 
@@ -61,7 +64,7 @@ public class HttpGatewayService {
     return processResource;
   }
 
-  public boolean waitForGateway() throws InterruptedException {
+  public boolean waitForGateway(int pingIntervalMs) throws InterruptedException {
     long startTime = System.currentTimeMillis();
     long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
 
@@ -69,7 +72,7 @@ public class HttpGatewayService {
       if (isGatewayResponsive()) {
         return true;
       }
-      TimeUnit.MILLISECONDS.sleep(500);
+      TimeUnit.MILLISECONDS.sleep(pingIntervalMs);
     }
 
     throw new RuntimeException("Failed to start gateway");

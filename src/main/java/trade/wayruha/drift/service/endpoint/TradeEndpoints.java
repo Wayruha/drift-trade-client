@@ -11,15 +11,15 @@ import trade.wayruha.drift.dto.request.PlaceOrderRequest;
 import trade.wayruha.drift.dto.response.TxConfirmationResponse;
 
 public interface TradeEndpoints {
-  @POST("v2/orders")
+  @POST("v1/orders")
   Call<TxConfirmationResponse> postOrder(@Body PlaceOrderRequest request);
 
-  @DELETE("v2/orders")
+  @DELETE("v1/orders")
   Call<TxConfirmationResponse> deleteOrders();
 
-  @HTTP(method = "DELETE", path = "v2/orders", hasBody = true)
+  @HTTP(method = "DELETE", path = "v1/orders", hasBody = true)
   Call<TxConfirmationResponse> deleteOrdersByUserIds(@Body CancelOrderByUserIdRequest request);
 
-	@HTTP(method = "DELETE", path = "v2/orders", hasBody = true)
+	@HTTP(method = "DELETE", path = "v1/orders", hasBody = true)
 	Call<TxConfirmationResponse> deleteOrdersByIds(@Body CancelOrderByIdsRequest request);
 }
