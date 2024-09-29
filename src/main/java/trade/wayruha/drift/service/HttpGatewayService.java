@@ -44,15 +44,15 @@ public class HttpGatewayService {
   }
 
   public ProcessResource startGateway() throws IOException {
-    final ProcessBuilder processBuilder = new ProcessBuilder(
-        "node", gatewayPath, // Command to run the TypeScript file
-        "--rpc", rpcNode,      // Passing RPC node from the config
-        "--host", host,                    // Host from the config
-        "--port", port.toString(),         // Port from the config
-        "--ws_port", wsPort.toString(),    // WebSocket port from the config
-        "--private_key", privateKey, // Private key as an argument
-        "--ws_rpc", webSocketHost
-    );
+	  final ProcessBuilder processBuilder = new ProcessBuilder(
+		  "node", gatewayPath,  // Command to run the TypeScript file
+		  "--rpc", rpcNode,      // Passing RPC node from the config
+		  "--host", host,                    // Host from the config
+		  "--port", port.toString(),         // Port from the config
+		  "--ws_port", wsPort.toString(),    // WebSocket port from the config
+		  "--private_key", privateKey, // Private key as an argument
+          "--ws_rpc", webSocketHost
+	  );
 
     final Process process = processBuilder.start();
 
@@ -95,7 +95,7 @@ public class HttpGatewayService {
 
   @SneakyThrows
   private URL createGatewayHealthUrl() {
-    return new URL("http://" + host + ":" + port + "/v1/balance");
+    return new URL("http://" + host + ":" + port + "/v2/leverage");
   }
 
   @ToString
