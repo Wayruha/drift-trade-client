@@ -16,17 +16,18 @@ public class PrivateWSTest {
 
 	@SneakyThrows
 	public static void main(String[] args) {
-		driftConfig = new DriftConfig("8090", "127.0.0.10", "127.0.0.10:1337", "../gateway-1.0.0/target/release/drift-gateway.exe", "");
-		driftConfig.setWebSocketPingIntervalSec(0);
+		driftConfig = new DriftConfig("8095", "127.0.0.1", "127.0.0.1:8091", "8096", "E:/Work/gateway-1.0.0/target/release/drift-gateway.exe", "https://go.getblock.io/fab4f72a499f464381808cdf952364d0");
+//		driftConfig.setWebSocketPingIntervalSec(0);
 
-		httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
-		httpGatewayService.startGateway();
-		httpGatewayService.waitForGateway();
+//		httpGatewayService = new HttpGatewayService(privateKey, driftConfig);
+//		httpGatewayService.startGateway();
+//		httpGatewayService.setTimeoutSeconds(30);
+//		httpGatewayService.waitForGateway(1000);
 
 		final WebSocketPrivateClientFactory factory = new WebSocketPrivateClientFactory(driftConfig);
 		final PrivateWSTest.Callback callback = new PrivateWSTest.Callback();
 		final WebSocketSubscriptionClient<UserOrderUpdate> subscription = factory.privateUpdatesSubscription(callback);
-		Thread.sleep(5_000);
+		Thread.sleep(60_000);
 	}
 
 	static class Callback implements WebSocketCallback<UserOrderUpdate> {

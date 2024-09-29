@@ -10,7 +10,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -18,6 +17,7 @@ public class HttpGatewayService {
   private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
   private final String host;
   private final Integer port;
+  private final Integer wsPort;
   private final String privateKey;
   private final String gatewayPath;
   private final String rpcNode;
@@ -33,23 +33,24 @@ public class HttpGatewayService {
     this.port = Integer.parseInt(config.getGatewayPort());
     this.privateKey = privateKey;
     this.gatewayPath = config.getGatewayExecutablePath();
+	this.wsPort = Integer.parseInt(config.getWsPort());
     this.rpcNode = config.getRpcNode();
     this.gatewayHealthcheckUrl = createGatewayHealthUrl();
     this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
   }
 
   public ProcessResource startGateway() throws IOException {
-    final ProcessBuilder processBuilder = new ProcessBuilder(
-        gatewayPath,
-        rpcNode,
-        "--port", port.toString(),
-        "--host", host
-    );
-
-    final Map<String, String> environment = processBuilder.environment();
-    environment.put(DRIFT_GATEWAY_KEY, privateKey);
+	  final ProcessBuilder processBuilder = new ProcessBuilder(
+		  "node", gatewayPath, // Command to run the TypeScript file
+		  "--rpc", rpcNode,      // Passing RPC node from the config
+		  "--host", host,                    // Host from the config
+		  "--port", port.toString(),         // Port from the config
+		  "--ws_port", wsPort.toString(),    // WebSocket port from the config
+		  "--private_key", privateKey // Private key as an argument
+	  );
 
     final Process process = processBuilder.start();
+  	System.out.println(processBuilder.command());
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (process.isAlive()) {
@@ -61,7 +62,7 @@ public class HttpGatewayService {
     return processResource;
   }
 
-  public boolean waitForGateway() throws InterruptedException {
+  public boolean waitForGateway(int pingIntervalMs) throws InterruptedException {
     long startTime = System.currentTimeMillis();
     long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
 
@@ -69,7 +70,7 @@ public class HttpGatewayService {
       if (isGatewayResponsive()) {
         return true;
       }
-      TimeUnit.MILLISECONDS.sleep(500);
+      TimeUnit.MILLISECONDS.sleep(pingIntervalMs);
     }
 
     throw new RuntimeException("Failed to start gateway");
@@ -90,7 +91,7 @@ public class HttpGatewayService {
 
   @SneakyThrows
   private URL createGatewayHealthUrl() {
-    return new URL("http://" + host + ":" + port + "/v2/leverage");
+    return new URL("http://" + host + ":" + port + "/v1/balance");
   }
 
   @RequiredArgsConstructor
