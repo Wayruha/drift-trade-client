@@ -45,7 +45,7 @@ public class HttpGatewayService {
 
   public ProcessResource startGateway() throws IOException {
 	  final ProcessBuilder processBuilder = new ProcessBuilder(
-		  "node", gatewayPath,  // Command to run the TypeScript file
+		  "node", gatewayPath, // Command to run the TypeScript file
 		  "--rpc", rpcNode,      // Passing RPC node from the config
 		  "--host", host,                    // Host from the config
 		  "--port", port.toString(),         // Port from the config
@@ -55,6 +55,7 @@ public class HttpGatewayService {
 	  );
 
     final Process process = processBuilder.start();
+  	log.info(processBuilder.command());
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (process.isAlive()) {
