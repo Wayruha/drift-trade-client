@@ -3,6 +3,7 @@ package trade.wayruha.drift.dto.wsresponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import trade.wayruha.drift.dto.MarketType;
@@ -116,6 +117,10 @@ public class UserOrderUpdate {
     private String taker;
     private Long takerOrderId;
     private String takerFee;
+
+	public Long findActualOrderId() {
+		return ObjectUtils.firstNonNull(orderId, makerOrderId, takerOrderId);
+	}
   }
 
   @Data
