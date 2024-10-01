@@ -168,7 +168,7 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
   @Override
   public void onOpen(WebSocket webSocket, Response response) {
     super.onOpen(webSocket, response);
-    log.debug("{} onOpen WS event: Connected to channels {}", logPrefix, this.subscriptions);
+    log.debug("{} onOpen WS event:", logPrefix);
     state = WSState.CONNECTED;
     lastReceivedTime = System.currentTimeMillis();
     this.webSocket = webSocket;

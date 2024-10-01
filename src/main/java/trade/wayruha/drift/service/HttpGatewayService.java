@@ -3,6 +3,7 @@ package trade.wayruha.drift.service;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import trade.wayruha.drift.DriftConfig;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpGatewayService {
   private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
+
   private final String host;
   private final Integer port;
   private final Integer wsPort;
@@ -33,24 +35,23 @@ public class HttpGatewayService {
     this.port = Integer.parseInt(config.getGatewayPort());
     this.privateKey = privateKey;
     this.gatewayPath = config.getGatewayExecutablePath();
-	this.wsPort = Integer.parseInt(config.getWsPort());
+    this.wsPort = Integer.parseInt(config.getWsPort());
     this.rpcNode = config.getRpcNode();
     this.gatewayHealthcheckUrl = createGatewayHealthUrl();
     this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
   }
 
   public ProcessResource startGateway() throws IOException {
-	  final ProcessBuilder processBuilder = new ProcessBuilder(
-		  "node", gatewayPath, // Command to run the TypeScript file
-		  "--rpc", rpcNode,      // Passing RPC node from the config
-		  "--host", host,                    // Host from the config
-		  "--port", port.toString(),         // Port from the config
-		  "--ws_port", wsPort.toString(),    // WebSocket port from the config
-		  "--private_key", privateKey // Private key as an argument
-	  );
+    final ProcessBuilder processBuilder = new ProcessBuilder(
+        "node", gatewayPath, // Command to run the TypeScript file
+        "--rpc", rpcNode,      // Passing RPC node from the config
+        "--host", host,                    // Host from the config
+        "--port", port.toString(),         // Port from the config
+        "--ws_port", wsPort.toString(),    // WebSocket port from the config
+        "--private_key", privateKey // Private key as an argument
+    );
 
     final Process process = processBuilder.start();
-  	System.out.println(processBuilder.command());
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (process.isAlive()) {
@@ -94,6 +95,7 @@ public class HttpGatewayService {
     return new URL("http://" + host + ":" + port + "/v1/balance");
   }
 
+  @ToString
   @RequiredArgsConstructor
   public static class ProcessResource implements Closeable {
     private final Process process;
