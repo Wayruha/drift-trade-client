@@ -40,11 +40,11 @@ public class PlaceOrderParams {
     return new PlaceOrderParams(marketIndex, MarketType.SPOT, amount, price, postOnly, orderType, userOrderId, reduceOnly, null, maxExpirationTimestamp);
   }
 
-  public static PlaceOrderParams PerpOracleOrder(int marketIndex, BigDecimal amount, boolean postOnly, OrderType orderType, int oraclePriceOffset, Integer userOrderId) {
-    return new PlaceOrderParams(marketIndex, MarketType.PERP, amount, null, postOnly, orderType, userOrderId, null, oraclePriceOffset, null);
+  public static PlaceOrderParams PerpOracleOrder(int marketIndex, BigDecimal amount, boolean postOnly, OrderType orderType, int oraclePriceOffset, Integer userOrderId, Boolean isReduceOnly) {
+    return new PlaceOrderParams(marketIndex, MarketType.PERP, amount, null, postOnly, orderType, userOrderId, isReduceOnly, oraclePriceOffset, null);
   }
 
-  public static PlaceOrderParams PerpOrder(int marketIndex, BigDecimal amount, BigDecimal price, boolean postOnly, OrderType orderType, Integer userOrderId) {
-    return new PlaceOrderParams(marketIndex, MarketType.PERP, amount, price, postOnly, orderType, userOrderId, null, null, null);
+  public static PlaceOrderParams PerpOrder(int marketIndex, BigDecimal amount, BigDecimal price, boolean postOnly, OrderType orderType, Integer userOrderId, Boolean isReduceOnly) {
+    return new PlaceOrderParams(marketIndex, MarketType.PERP, amount, price, postOnly, orderType, userOrderId, isReduceOnly, null, null);
   }
 }
