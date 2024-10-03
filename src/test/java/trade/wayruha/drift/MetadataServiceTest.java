@@ -67,7 +67,7 @@ public class MetadataServiceTest {
   }
 
   private static void placeOrder() {
-    final PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest(List.of(PlaceOrderParams.PerpOrder(0, BigDecimal.valueOf(0.1), BigDecimal.valueOf(120), false, OrderType.LIMIT, 101)));
+    final PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest(List.of(PlaceOrderParams.PerpOrder(0, BigDecimal.valueOf(0.1), BigDecimal.valueOf(120), false, OrderType.LIMIT, 101, false)));
     TxConfirmationResponse tx = tradeService.placeOrder(placeOrderRequest);
     System.out.println(tx);
   }
