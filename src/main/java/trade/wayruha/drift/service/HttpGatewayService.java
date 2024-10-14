@@ -15,84 +15,84 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class HttpGatewayService {
-  private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
+    private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
 
-  private final String host;
-  private final String webSocketHost;
-  private final Integer port;
-  private final Integer wsPort;
-  private final String privateKey;
-  private final String gatewayPath;
-  private final String rpcNode;
-  private final URL gatewayHealthcheckUrl;
-  @Setter
-  private int timeoutSeconds;
-  private ProcessResource processResource;
+    private final String host;
+    private final String webSocketHost;
+    private final Integer port;
+    private final Integer wsPort;
+    private final String privateKey;
+    private final String gatewayPath;
+    private final String rpcNode;
+    private final URL gatewayHealthcheckUrl;
+    @Setter
+    private int timeoutSeconds;
+    private ProcessResource processResource;
 
-  private static final String DRIFT_GATEWAY_KEY = "DRIFT_GATEWAY_KEY";
+    private static final String DRIFT_GATEWAY_KEY = "DRIFT_GATEWAY_KEY";
 
-  public HttpGatewayService(String privateKey, DriftConfig config) {
-    this.host = config.getGatewayHost();
-    this.port = Integer.parseInt(config.getGatewayPort());
-    this.privateKey = privateKey;
-    this.gatewayPath = config.getGatewayExecutablePath();
-    this.wsPort = Integer.parseInt(config.getWsPort());
-    this.rpcNode = config.getRpcNode();
-    this.gatewayHealthcheckUrl = createGatewayHealthUrl();
-    this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
-    this.webSocketHost = config.getWebSocketHost();
-  }
-
-  public ProcessResource startGateway() throws IOException {
-	  final ProcessBuilder processBuilder = new ProcessBuilder(
-		  "node", gatewayPath, // Command to run the TypeScript file
-		  "--rpc", rpcNode,      // Passing RPC node from the config
-		  "--host", host,                    // Host from the config
-		  "--port", port.toString(),         // Port from the config
-		  "--ws_port", wsPort.toString(),    // WebSocket port from the config
-		  "--private_key", privateKey, // Private key as an argument
-          "--ws_rpc", webSocketHost
-	  );
-
-    final Process process = processBuilder.start();
-  	log.info(processBuilder.command());
-
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      if (process.isAlive()) {
-        process.destroy();
-        log.info("Process destroyed on JVM shutdown.");
-      }
-    }));
-    this.processResource = new ProcessResource(process);
-    return processResource;
-  }
-
-  public boolean waitForGateway(int pingIntervalMs) throws InterruptedException {
-    long startTime = System.currentTimeMillis();
-    long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
-
-    while (System.currentTimeMillis() < endTime) {
-      if (isGatewayResponsive()) {
-        return true;
-      }
-      TimeUnit.MILLISECONDS.sleep(pingIntervalMs);
+    public HttpGatewayService(String privateKey, DriftConfig config) {
+        this.host = config.getGatewayHost();
+        this.port = Integer.parseInt(config.getGatewayPort());
+        this.privateKey = privateKey;
+        this.gatewayPath = config.getGatewayExecutablePath();
+        this.wsPort = Integer.parseInt(config.getWsPort());
+        this.rpcNode = config.getRpcNode();
+        this.gatewayHealthcheckUrl = createGatewayHealthUrl();
+        this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
+        this.webSocketHost = config.getWebSocketHost();
     }
 
-    throw new RuntimeException("Failed to start gateway");
-  }
+    public ProcessResource startGateway() throws IOException {
+        final ProcessBuilder processBuilder = new ProcessBuilder(
+                "node", gatewayPath, // Command to run the TypeScript file
+                "--rpc", rpcNode,      // Passing RPC node from the config
+                "--host", host,                    // Host from the config
+                "--port", port.toString(),         // Port from the config
+                "--ws_port", wsPort.toString(),    // WebSocket port from the config
+                "--private_key", privateKey, // Private key as an argument
+                "--ws_rpc", webSocketHost
+        );
 
-  private boolean isGatewayResponsive() {
-    try {
-      final HttpURLConnection connection = (HttpURLConnection) gatewayHealthcheckUrl.openConnection();
-      connection.setRequestMethod("GET");
-      connection.setConnectTimeout(1000);
-      connection.setReadTimeout(1000);
-      final int responseCode = connection.getResponseCode();
-      return (responseCode == 200);
-    } catch (IOException e) {
-      return false;
+        log.info("Spawning gateway process: {}", processBuilder.command());
+        final Process process = processBuilder.inheritIO().start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (process.isAlive()) {
+                process.destroy();
+                log.info("Process destroyed on JVM shutdown.");
+            }
+        }));
+        this.processResource = new ProcessResource(process);
+        return processResource;
     }
-  }
+
+    public boolean waitForGateway(int pingIntervalMs) throws InterruptedException {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + TimeUnit.SECONDS.toMillis(timeoutSeconds);
+
+        while (System.currentTimeMillis() < endTime) {
+            if (isGatewayResponsive()) {
+                return true;
+            }
+            TimeUnit.MILLISECONDS.sleep(pingIntervalMs);
+        }
+
+        throw new RuntimeException("Failed to start gateway");
+    }
+
+    private boolean isGatewayResponsive() {
+        try {
+            final HttpURLConnection connection = (HttpURLConnection) gatewayHealthcheckUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(1000);
+            connection.setReadTimeout(1000);
+            final int responseCode = connection.getResponseCode();
+            return (responseCode == 200);
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
   @SneakyThrows
   private URL createGatewayHealthUrl() {
@@ -104,12 +104,12 @@ public class HttpGatewayService {
   public static class ProcessResource implements Closeable {
     private final Process process;
 
-    @Override
-    public void close() {
-      if (process != null) {
-        process.destroy();
-        log.info("HttpGateway closed successfully...");
-      }
+        @Override
+        public void close() {
+            if (process != null) {
+                process.destroy();
+                log.info("HttpGateway closed successfully...");
+            }
+        }
     }
-  }
 }
