@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import trade.wayruha.drift.DriftConfig;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +43,7 @@ public class HttpGatewayService {
         this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
     }
 
-    public ProcessResource startGateway() throws IOException {
+    public ProcessResource startGateway(Logger logger) throws IOException {
         final ProcessBuilder processBuilder = new ProcessBuilder(
                 "node", gatewayPath, // Command to run the TypeScript file
                 "--rpc", rpcNode,      // Passing RPC node from the config
@@ -50,7 +54,11 @@ public class HttpGatewayService {
         );
 
         log.info("Spawning gateway process: {}", processBuilder.command());
-        final Process process = processBuilder.inheritIO().start();
+        final Process process = processBuilder.start();
+		if(logger != null) {
+			logProcessStream(process.getInputStream(), logger, false);
+			logProcessStream(process.getErrorStream(), logger, true);
+		}
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (process.isAlive()) {
@@ -93,6 +101,23 @@ public class HttpGatewayService {
     private URL createGatewayHealthUrl() {
         return new URL("http://" + host + ":" + port + "/v1/balance");
     }
+
+	private void logProcessStream(InputStream inputStream, Logger logger, boolean isError) {
+		new Thread(() -> {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					if (isError) {
+						logger.error(line);
+					} else {
+						logger.info(line);
+					}
+				}
+			} catch (IOException e) {
+				logger.error("Error while reading process output", e);
+			}
+		}).start();
+	}
 
     @RequiredArgsConstructor
     public static class ProcessResource implements Closeable {
