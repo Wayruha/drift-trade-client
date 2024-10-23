@@ -118,10 +118,15 @@ public class UserOrderUpdate {
     private Long takerOrderId;
     private String takerFee;
 
-	public Long findActualOrderId() {
-		return ObjectUtils.firstNonNull(orderId, makerOrderId, takerOrderId);
+		public Long findActualOrderId(String clientPublicKey) {
+			if (maker.equals(clientPublicKey)) {
+				return makerOrderId;
+			} else if (taker.equals(clientPublicKey)) {
+				return takerOrderId;
+			}
+			return ObjectUtils.firstNonNull(orderId, makerOrderId, takerOrderId);
+		}
 	}
-  }
 
   @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
