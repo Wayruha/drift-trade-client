@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import trade.wayruha.drift.dto.MarketType;
 import trade.wayruha.drift.dto.OrderSide;
 import trade.wayruha.drift.dto.OrderType;
+import java.util.Objects;
 
 import java.math.BigDecimal;
 
@@ -119,9 +120,9 @@ public class UserOrderUpdate {
     private String takerFee;
 
 		public Long findActualOrderId(String clientPublicKey) {
-			if (maker.equals(clientPublicKey)) {
+			if (Objects.equals(maker, clientPublicKey)) {
 				return makerOrderId;
-			} else if (taker.equals(clientPublicKey)) {
+			} else if (Objects.equals(taker, clientPublicKey)) {
 				return takerOrderId;
 			}
 			return ObjectUtils.firstNonNull(orderId, makerOrderId, takerOrderId);
