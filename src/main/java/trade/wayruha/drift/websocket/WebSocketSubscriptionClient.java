@@ -141,22 +141,26 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
     while (!success &&
         (config.isWebSocketReconnectAlways() || reconnectionCounter.incrementAndGet() < config.getWebSocketMaxReconnectAttempts())) {
       try {
+        sleep(WEB_SOCKET_RECONNECTION_DELAY_MS);
         log.debug("{} Try to reconnect. Attempt #{}", logPrefix, reconnectionCounter.get());
         this.close();
         this.connect(cancelledSubscriptions);
         success = true;
       } catch (Exception e) {
         log.error("{} [Connection error] Error while reconnecting: {}", logPrefix, e.getMessage(), e);
-        try {
-          Thread.sleep(WEB_SOCKET_RECONNECTION_DELAY_MS);
-        } catch (InterruptedException ex) {
-          log.error("{} [Connection error] Interrupted while Thread.sleep(). {}", logPrefix, ex.getMessage());
-        }
       }
     }
     log.debug("{} Successfully reconnected to WebSocket channels: {}.", logPrefix, cancelledSubscriptions);
     cancelledSubscriptions.clear();
     return success;
+  }
+
+  private void sleep(long sleeptimeMs) {
+    try {
+      Thread.sleep(sleeptimeMs);
+    } catch (InterruptedException ex) {
+      log.error("{} [Connection error] Interrupted while Thread.sleep(). {}", logPrefix, ex.getMessage());
+    }
   }
 
   @SneakyThrows
@@ -262,7 +266,6 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
   }
 
   class PingTask implements Runnable {
-
     @SneakyThrows
     @Override
     public void run() {
