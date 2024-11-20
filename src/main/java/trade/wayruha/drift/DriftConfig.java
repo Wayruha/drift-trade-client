@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import static trade.wayruha.drift.config.Constant.HTTP_CLIENT_TIMEOUT_MS;
 
@@ -13,7 +12,7 @@ public class DriftConfig {
   private String gatewayPort = "8090";
   private String gatewayHost = "127.0.0.2";
   private String host;
-  private String wsPort = "8090";
+  private String gatewayWsPort = "8090";
   private String webSocketHost = "wss://dlob.drift.trade/ws";
   private String gatewayExecutablePath = "../gateway-0.1.15/target/release/drift-gateway.exe";
   private String rpcNode = "https://api.mainnet-beta.solana.com";
@@ -22,7 +21,7 @@ public class DriftConfig {
     this.gatewayPort = gatewayPort;
     this.gatewayHost = gatewayHost;
     this.host = "http://" + gatewayHost + ":" + gatewayPort;
-    this.wsPort = wsPort;
+    this.gatewayWsPort = wsPort;
     this.webSocketHost = webSocketHost;
     this.gatewayExecutablePath = gatewayExecutablePath;
     this.rpcNode = rpcNode;

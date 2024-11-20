@@ -40,7 +40,7 @@ public class HttpGatewayService {
         this.port = Integer.parseInt(config.getGatewayPort());
         this.privateKey = privateKey;
         this.gatewayPath = config.getGatewayExecutablePath();
-        this.wsPort = Integer.parseInt(config.getWsPort());
+        this.wsPort = Integer.parseInt(config.getGatewayWsPort());
         this.rpcNode = config.getRpcNode();
         this.gatewayHealthcheckUrl = createGatewayHealthUrl();
         this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;

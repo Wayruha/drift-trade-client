@@ -10,20 +10,19 @@ import trade.wayruha.drift.dto.wsresponse.UserOrderUpdate;
 import java.util.Set;
 
 public class WebSocketPrivateClientFactory {
-	private final ApiClient apiClient;
-	@Setter
-	private ObjectMapper objectMapper;
+    private final ApiClient apiClient;
+    @Setter
+    private ObjectMapper objectMapper;
 
-	public WebSocketPrivateClientFactory(DriftConfig config) {
-		config.setWebSocketHost("http://" + config.getGatewayHost() + ":" + config.getWsPort());
-		this.apiClient = new ApiClient(config);
-		this.objectMapper = config.getObjectMapper();
-	}
+    public WebSocketPrivateClientFactory(DriftConfig config) {
+        this.apiClient = new ApiClient(config);
+        this.objectMapper = config.getObjectMapper();
+    }
 
-	public WebSocketSubscriptionClient<UserOrderUpdate> privateUpdatesSubscription(WebSocketCallback<UserOrderUpdate> callback){
-		final WSSubscription sub = WSSubscription.privateUpdatesSubscription(null);
-		final WebSocketSubscriptionClient<UserOrderUpdate> client = new WebSocketSubscriptionClient<>(apiClient, objectMapper, callback);
-		client.connect(Set.of(sub));
-		return client;
-	}
+    public WebSocketSubscriptionClient<UserOrderUpdate> privateUpdatesSubscription(WebSocketCallback<UserOrderUpdate> callback) {
+        final WSSubscription sub = WSSubscription.privateUpdatesSubscription(null);
+        final WebSocketSubscriptionClient<UserOrderUpdate> client = new WebSocketSubscriptionClient<>(apiClient, objectMapper, callback);
+        client.connect(Set.of(sub));
+        return client;
+    }
 }

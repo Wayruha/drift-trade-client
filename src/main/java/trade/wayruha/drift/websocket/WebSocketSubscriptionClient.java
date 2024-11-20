@@ -17,7 +17,6 @@ import trade.wayruha.drift.config.ApiClient;
 import trade.wayruha.drift.config.Constant;
 import trade.wayruha.drift.dto.wsrequest.WSMessage;
 import trade.wayruha.drift.dto.wsrequest.WSSubscription;
-import trade.wayruha.drift.dto.wsresponse.UserOrderUpdate;
 import trade.wayruha.drift.util.IdGenerator;
 
 import java.util.HashSet;
