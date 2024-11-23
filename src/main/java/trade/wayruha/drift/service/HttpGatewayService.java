@@ -1,5 +1,6 @@
 package trade.wayruha.drift.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -125,6 +126,7 @@ public class HttpGatewayService {
 	}
 
     @RequiredArgsConstructor
+    @Getter
     public static class ProcessResource implements Closeable {
         private final Process process;
 
