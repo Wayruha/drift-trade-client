@@ -18,6 +18,7 @@ public class HttpGatewayService {
   private static final int DEFAULT_GATEWAY_TIMEOUT = 10;
 
   private final String host;
+  private final String webSocketHost;
   private final Integer port;
   private final Integer wsPort;
   private final String privateKey;
@@ -39,6 +40,7 @@ public class HttpGatewayService {
     this.rpcNode = config.getRpcNode();
     this.gatewayHealthcheckUrl = createGatewayHealthUrl();
     this.timeoutSeconds = DEFAULT_GATEWAY_TIMEOUT;
+    this.webSocketHost = config.getWebSocketHost();
   }
 
   public ProcessResource startGateway() throws IOException {
@@ -48,7 +50,8 @@ public class HttpGatewayService {
         "--host", host,                    // Host from the config
         "--port", port.toString(),         // Port from the config
         "--ws_port", wsPort.toString(),    // WebSocket port from the config
-        "--private_key", privateKey // Private key as an argument
+        "--private_key", privateKey, // Private key as an argument
+        "--ws_rpc", webSocketHost
     );
 
     final Process process = processBuilder.start();
