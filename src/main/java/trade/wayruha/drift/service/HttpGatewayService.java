@@ -51,7 +51,7 @@ public class HttpGatewayService {
         "--port", port.toString(),         // Port from the config
         "--ws_port", wsPort.toString(),    // WebSocket port from the config
         "--private_key", privateKey, // Private key as an argument
-        "--ws_port", webSocketHost
+        "--ws_rpc", webSocketHost
     );
 
     final Process process = processBuilder.start();
