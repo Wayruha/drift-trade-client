@@ -199,12 +199,11 @@ public class WebSocketSubscriptionClient<T> extends WebSocketListener {
       final JsonNode dataNode = response.get("data");
 
       final T data;
-      if (channel.get().contains("orderbook")) {
-        final String dataJson = dataNode.textValue();
-        data = objectMapper.readValue(dataJson, callback.getType());
+      if (channel.get().contains("orderbook") && dataNode.textValue() != null) {
+        data = objectMapper.readValue(dataNode.textValue(), callback.getType());
       } else {
-				data = objectMapper.convertValue(dataNode, callback.getType());
-			}
+        data = objectMapper.convertValue(dataNode, callback.getType());
+      }
 
       callback.onResponse(data);
     } catch (Exception e) {
